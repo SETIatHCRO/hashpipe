@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <sched.h>
+#include <pthread.h>
 
 #include "hashpipe_error.h"
 #include "hashpipe_databuf.h"
