@@ -187,7 +187,7 @@ struct hashpipe_ibv_flow {
   struct ibv_flow_spec_eth     spec_eth;
   struct ibv_flow_spec_ipv4    spec_ipv4;
   struct ibv_flow_spec_tcp_udp spec_tcp_udp;
-} __attribute__((packed));
+};
 
 // Stores hardware (aka MAC) address in `mac` and interface ID (i.e. lower 64
 // bits of an ipv6 link-local address in modified EUI-64 format) in
