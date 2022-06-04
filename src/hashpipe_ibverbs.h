@@ -8,7 +8,7 @@
 #include <infiniband/verbs.h>
 
 // These defines control various aspects of the Hashpipe IB Verbs library.
-#define HPIBV_USE_SEND_CC       0
+#define HPIBV_USE_SEND_CC       1
 #define HPIBV_USE_MMAP_PKTBUFS  1
 #define HPIBV_USE_TIMING_DIAGS  0
 #define HPIBV_USE_EXP_CQ        0

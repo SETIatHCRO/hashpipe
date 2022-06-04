@@ -424,16 +424,16 @@ int hashpipe_ibv_init(struct hashpipe_ibv_context * hibv_ctx)
       perror("ibv_create_cq[send]");
       goto cleanup_and_return_error;
     }
-  }
 
 #if HPIBV_USE_SEND_CC
-  // Request notifications before any send completion can be created.
-  // Do NOT restrict to solicited-only completions.
-  if(ibv_req_notify_cq(hibv_ctx->send_cq, 0)) {
-    perror("ibv_req_notify_cq[send]");
-    goto cleanup_and_return_error;
-  }
+    // Request notifications before any send completion can be created.
+    // Do NOT restrict to solicited-only completions.
+    if(ibv_req_notify_cq(hibv_ctx->send_cq[i], 0)) {
+      perror("ibv_req_notify_cq[send]");
+      goto cleanup_and_return_error;
+    }
 #endif
+  }
 
   // Create recv completion queues
   if(!(hibv_ctx->recv_cq =
