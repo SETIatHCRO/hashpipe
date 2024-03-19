@@ -211,13 +211,13 @@ char *hashpipe_databuf_data(hashpipe_databuf_t *d, int block_id)
     return (char *)d + d->header_size + d->block_size*block_id;
 }
 
-hashpipe_databuf_t *hashpipe_databuf_attach(int instance_id, int databuf_id)
+int hashpipe_databuf_shmid(int instance_id, int databuf_id)
 {
     /* Get shmid */
     key_t key = hashpipe_databuf_key(instance_id);
     if(key == HASHPIPE_KEY_ERROR) {
         hashpipe_error(__FUNCTION__, "hashpipe_databuf_key error");
-        return NULL;
+        return -1;
     }
     int shmid;
     shmid = shmget(key + databuf_id - 1, 0, 0666);
@@ -225,6 +225,16 @@ hashpipe_databuf_t *hashpipe_databuf_attach(int instance_id, int databuf_id)
         // Doesn't exist, exit quietly otherwise complain
         if (errno!=ENOENT)
             hashpipe_error(__FUNCTION__, "shmget error");
+    }
+    return shmid;
+}
+
+hashpipe_databuf_t *hashpipe_databuf_attach(int instance_id, int databuf_id)
+{
+    /* Get shmid */
+    int shmid = hashpipe_databuf_shmid(instance_id, databuf_id);
+    if (shmid==-1) {
+        // Doesn't exist, exit quietly otherwise complain
         return NULL;
     }
 

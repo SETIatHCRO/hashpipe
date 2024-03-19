@@ -138,9 +138,14 @@ int main(int argc, char *argv[]) {
         }
         rv = shmctl(d->shmid, IPC_RMID, NULL);
         if (rv==-1) {
-            fprintf(stderr, "Error deleting databuf segment %u.\n", d->shmid);
-            perror("shmctl");
-            ex=1;
+            int shmid = hashpipe_databuf_shmid(instance_id, i);
+            fprintf(stderr, "Error deleting databuf#%d segment %u. Retrying with %u.\n", i, d->shmid, shmid);
+            rv = shmctl(shmid, IPC_RMID, NULL);
+            if (rv==-1) {
+                fprintf(stderr, "Error deleting databuf#%d segment %u.\n", i, shmid);
+                perror("shmctl");
+                ex=1;
+            }
         }
     }
 

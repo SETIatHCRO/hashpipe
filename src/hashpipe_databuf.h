@@ -44,6 +44,11 @@ key_t hashpipe_databuf_key();
 hashpipe_databuf_t *hashpipe_databuf_create(int instance_id,
         int databuf_id, size_t header_size, size_t block_size, int n_block);
 
+/* Return the shmid for the databuf with given id.
+ * Returns < 0 if segment does not exist 
+ */
+int hashpipe_databuf_shmid(int instance_id, int databuf_id);
+
 /* Return a pointer to a existing shmem segment with given id.
  * Returns error if segment does not exist 
  */
