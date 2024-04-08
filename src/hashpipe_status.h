@@ -62,6 +62,7 @@ int hashpipe_status_detach(hashpipe_status_t *s);
  * non-zero on errors.
  */
 int hashpipe_status_lock(hashpipe_status_t *s);
+int hashpipe_status_lock_timeout(hashpipe_status_t *s, struct timespec *timeout);
 int hashpipe_status_lock_busywait(hashpipe_status_t *s);
 int hashpipe_status_unlock(hashpipe_status_t *s);
 

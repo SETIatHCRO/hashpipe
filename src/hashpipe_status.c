@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <semaphore.h>
 #include <errno.h>
+#include <time.h>
 
 #include "hashpipe_ipckey.h"
 #include "hashpipe_status.h"
@@ -149,6 +150,31 @@ int hashpipe_status_detach(hashpipe_status_t *s) {
 /* TODO: put in some (long, ~few sec) timeout */
 int hashpipe_status_lock(hashpipe_status_t *s) {
     return(sem_wait(s->lock));
+}
+
+int hashpipe_status_lock_timeout(hashpipe_status_t *s, struct timespec *timeout) {
+    struct timespec deadline;
+    if (clock_gettime(CLOCK_REALTIME, &deadline) == -1) {
+        hashpipe_error("hashpipe_status_lock_timeout", "clock_gettime error");
+        return HASHPIPE_ERR_SYS;
+    }
+    deadline.tv_sec += timeout->tv_sec;
+    deadline.tv_nsec += timeout->tv_nsec;
+    while (deadline.tv_nsec >= 1000000000) {
+        // should execute once at most
+        deadline.tv_sec += 1;
+        deadline.tv_nsec -= 1000000000;
+    }
+    int rv = sem_timedwait(s->lock, &deadline);
+    if (rv == -1) {
+        if (errno == ETIMEDOUT) {
+            errno = 0;
+            return HASHPIPE_TIMEOUT;
+        }
+        hashpipe_error("hashpipe_status_lock_timeout", "sem_timedwait error");
+        return -1;
+    }
+    return 0;
 }
 
 /* TODO: put in some (long, ~few sec) timeout */
