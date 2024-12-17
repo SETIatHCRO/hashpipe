@@ -348,6 +348,26 @@ int hashpipe_databuf_busywait_free(hashpipe_databuf_t *d, int block_id)
     return 0;
 }
 
+int hashpipe_databuf_check_free(hashpipe_databuf_t *d, int block_id)
+{
+    int rv;
+    struct sembuf op;
+    op.sem_num = block_id;
+    op.sem_op = 0;
+    op.sem_flg = IPC_NOWAIT;
+
+    rv = semop(d->semid, &op, 1);
+    if (rv==-1) { 
+        if (errno==EAGAIN) return HASHPIPE_TIMEOUT;
+        // Don't complain on a signal interruption
+        if (errno==EINTR) return HASHPIPE_ERR_SYS;
+        hashpipe_error(__FUNCTION__, "semop error");
+        perror("semop");
+        return HASHPIPE_ERR_SYS;
+    }
+    return 0;
+}
+
 int hashpipe_databuf_wait_filled_timeout(hashpipe_databuf_t *d, int block_id,
     struct timespec *timeout)
 {
@@ -410,6 +430,35 @@ int hashpipe_databuf_busywait_filled(hashpipe_databuf_t *d, int block_id)
     } while(rv == -1 && errno == EAGAIN);
     if (rv==-1) { 
         // Don't complain on a signal interruption
+        if (errno==EINTR) return HASHPIPE_ERR_SYS;
+        hashpipe_error(__FUNCTION__, "semop error");
+        perror("semop");
+        return HASHPIPE_ERR_SYS;
+    }
+    return 0;
+}
+
+int hashpipe_databuf_check_filled(hashpipe_databuf_t *d, int block_id)
+{
+    /* This needs to wait for the semval of the given block
+     * to become > 0, but NOT immediately decrement it to 0.
+     * Probably do this by giving an array of semops, since
+     * (afaik) the whole array happens atomically:
+     * step 1: wait for val=1 then decrement (semop=-1)
+     * step 2: increment by 1 (semop=1)
+     */
+    int rv;
+    struct sembuf op[2];
+    op[0].sem_num = op[1].sem_num = block_id;
+    op[0].sem_flg = IPC_NOWAIT;
+    op[1].sem_flg = IPC_NOWAIT;
+    op[0].sem_op = -1;
+    op[1].sem_op = 1;
+
+    rv = semop(d->semid, op, 2);
+    if (rv==-1) { 
+        // Don't complain on a signal interruption
+        if (errno==EAGAIN) return HASHPIPE_TIMEOUT;
         if (errno==EINTR) return HASHPIPE_ERR_SYS;
         hashpipe_error(__FUNCTION__, "semop error");
         perror("semop");

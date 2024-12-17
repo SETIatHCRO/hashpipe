@@ -86,6 +86,7 @@ int hashpipe_databuf_wait_filled_timeout(hashpipe_databuf_t *d,
 /* Calls hashpipe_databuf_wait_filled_timeout with a 0.25 second timeout */
 int hashpipe_databuf_wait_filled(hashpipe_databuf_t *d, int block_id);
 int hashpipe_databuf_busywait_filled(hashpipe_databuf_t *d, int block_id);
+int hashpipe_databuf_check_filled(hashpipe_databuf_t *d, int block_id);
 int hashpipe_databuf_set_filled(hashpipe_databuf_t *d, int block_id);
 
 int hashpipe_databuf_wait_free_timeout(hashpipe_databuf_t *d,
@@ -93,6 +94,7 @@ int hashpipe_databuf_wait_free_timeout(hashpipe_databuf_t *d,
 /* Calls hashpipe_databuf_wait_free_timeout with a 0.25 second timeout */
 int hashpipe_databuf_wait_free(hashpipe_databuf_t *d, int block_id);
 int hashpipe_databuf_busywait_free(hashpipe_databuf_t *d, int block_id);
+int hashpipe_databuf_check_free(hashpipe_databuf_t *d, int block_id);
 int hashpipe_databuf_set_free(hashpipe_databuf_t *d, int block_id);
 
 #ifdef __cplusplus
